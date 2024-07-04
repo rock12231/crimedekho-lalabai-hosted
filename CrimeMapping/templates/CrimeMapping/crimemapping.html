@@ -1,0 +1,532 @@
+{% extends 'CrimeMapping/base.html' %}
+{% load static %}
+{% block title %} Crime Mapping {% endblock %}
+{% block cssblock %}
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<style>
+    #select:focus {
+        border-color: #ff80ff;
+        box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset, 0px 0px 8px rgba(255, 100, 255, 0.5);
+    }
+
+    .toolbar {
+        float: left;
+    }
+
+    .cust-btn {
+        position: absolute;
+        margin-left: 40%;
+        margin-top: 10px;
+        z-index: 1;
+        color: black;
+        background: white;
+        border: 1px solid;
+    }
+
+    .cust-btn:hover {
+        position: absolute;
+        margin-left: 40%;
+        margin-top: 10px;
+        z-index: 1;
+        color: black;
+        background: #f4f4f4;
+        border: 1px solid;
+    }
+
+    .cust-btn:focus {
+        position: absolute;
+        margin-left: 40%;
+        margin-top: 10px;
+        z-index: 1;
+        color: black;
+        background: #f4f4f4;
+        border: 1px solid;
+    }
+
+    .blue-btn {
+        background-color: blue;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+    }
+    .container-btn {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px; 
+            background-color: #d7edff;
+            border-radius: 5px;
+            text-align: center;
+        }
+        #nameInputsContainer input {
+            display: block;
+            margin: 10px auto;
+            padding: 5px;
+            width: 80%;
+            box-sizing: border-box;
+        }
+        .button-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+</style>
+<!-- Multi Select -->
+<link href="{% static 'assets/vendor/select2/css/select2.min.css' %}" rel="stylesheet" />
+<script src="{% static 'assets/vendor/select2//js/select2.min.js' %}"></script>
+{% endblock %}
+{% block content %}
+
+
+
+<!-- ======= Header ======= -->
+<main id="main">
+    <!-- ======= Breadcrumbs ======= -->
+    <div class="breadcrumbs">
+        <div class="page-header d-flex align-items-center" style="background-image: 
+        url('{% static "assets/img/mapping_bg.png" %}');">
+            <div class="container position-relative">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-lg-6 text-center">
+                        <h2>Crime Mapping</h2>
+                        <!-- <p>message type here </p> -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav>
+            <div class="container" id="nav-container">
+                <ol>
+                    <li><a href="/">Home</a></li>
+                    <li>Crime-mapping</li>
+                </ol>
+            </div>
+        </nav>
+    </div><!-- End Breadcrumbs -->
+
+    <!-- <section id="horizontal-pricing" class="horizontal-pricing p-0">
+        <div class="container" data-aos="fade-up">
+            <div class="row mt-2 mb-2 pricing-item" data-aos="fade-up" data-aos-delay="100">
+                <ul class="nav nav-tabs pb-0 justify-content-center" id="myTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active fw-bold px-5 mx-1" id="home-tab" data-bs-toggle="tab" data-bs-target="#home-tab-pane" type="button"
+                            role="tab" aria-controls="home-tab-pane" aria-selected="true" onclick="pageScroll()">Crime Mapping</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold px-5 mx-1" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile-tab-pane" type="button"
+                            role="tab" aria-controls="profile-tab-pane" aria-selected="false" onclick="pageScroll()">Tabular Data</button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link fw-bold px-5 mx-1" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact-tab-pane" type="button"
+                            role="tab" aria-controls="contact-tab-pane" aria-selected="false" onclick="pageScroll()">Graphical Data</button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </section> -->
+    
+    
+     {% if request.user.is_staff %}
+
+    <section style="padding: 5px 0" id="get-a-quote" class="get-a-quote mb-5">
+        <div class="container" data-aos="fade-up">
+
+            <div class="row g-0">
+
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="home-tab-pane" role="tabpanel" aria-labelledby="home-tab" tabindex="0">
+                        <div class="row">
+                            <div class="col-md-12 border" data-aos="zoom-in">
+                                <form action="" method="POST" id="formOne">
+                                    <input type="hidden" name="form_type" value="formOne">
+                                    {% csrf_token %}
+                                    <div class="row">
+                                        <div class="col-lg-2">
+                                            <select name="Where" class="form-control" id="inputGroupSelect01" aria-label="Example select with button addon" required>
+                                                <option value="{{crime.selWhere}}">{% if crime.selWhere %}
+                                                    {{crime.selWhere}} {% else %} Choose {% endif %}</option>
+                                                {% for Where in crime.Where %}
+                                                <option value="{{Where}}">{{Where}}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <input class="form-check-input" name="domestic" type="checkbox" id="auto1" style="width: 18px;height: 18px;"  {% if crime.domestic %}value="true" checked="checked" {% endif %}>
+                                            <label class="form-check-label" for="autoSizingCheck" style="margin-top: 4px;">Domestic</label>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <input class="form-check-input" name="arrest" type="checkbox" id="auto2" style="margin-top: 6px; width: 18px;height: 18px;" {% if crime.arrest %}value="true" checked="checked" {% endif %}>
+                                            <label class="form-check-label" for="autoSizingCheck" style="margin-top: 4px;">Arrest</label>
+                                        </div>
+                                        <div class="col-lg-1">
+                                            <select class="form-select" aria-label=".form-select-sm example" id="from_Year" name="start" onchange="updateToYear()" style="width: 83px;">
+                                                <option selected>From</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-1">
+                                            <select class="form-select" aria-label=".form-select-sm example" id="to_Year" name="end" style="width: 83px;">
+                                                <option selected>To</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-lg-2">
+                                            <select class="form-control select2 select2-hidden-accessible" name="states" multiple="multiple" data-placeholder="Select a State" style="width: 100%;" tabindex="-1" aria-hidden="true" required>
+                                            <option value="{{crime.selType}}">{% if crime.selType %}{{crime.selType}}{% endif %}</option>
+                                            {% for Type in crime.Type %}
+                                                <option value="{{Type}}">{{Type}}</option>
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                        <!-- <div class="col-lg-12">
+                                            <input type="range" name="start" min="2001" max="2022" value="{% if crime.startDate %}{{crime.startDate}}{% else %}2001{% endif %}" id="slider-1" oninput="slideOne()">
+                                            <input type="range" name="end" min="2001" max="2022" value="{% if crime.endDate %}{{crime.endDate}}{% else %}2022{% endif %}" id="slider-2" oninput="slideTwo()">
+                                        </div> -->
+                                        <div class="col-lg-2 text-center">  
+                                            <input type="submit" class="btn btn-success" value="Show Result">
+                                        </div>
+                                        <script>
+                                            var currentYear = new Date().getFullYear();
+                                            var startYear = 2001;
+                                            for (var year = currentYear; year >= startYear; year--) {{
+                                                var option = document.createElement("option");
+                                                option.value = year;
+                                                option.text = year;
+                                                document.getElementById("from_Year").appendChild(option);
+                                            }}
+                                    
+                                        function updateToYear() {{
+                                                var fromYearSelect = document.getElementById("from_Year");
+                                                var toYearSelect = document.getElementById("to_Year");
+                                                toYearSelect.innerHTML = '<option selected>To</option>';
+                                                var selectedFromYear = parseInt(fromYearSelect.value);
+                                                for (var year = currentYear; year > selectedFromYear; year--) {{
+                                                    var option = document.createElement("option");
+                                                    option.value = year;
+                                                    option.text = year;
+                                                    toYearSelect.appendChild(option);
+                                                }}
+                                            }}
+
+                                        </script>
+                                    
+                                </form>
+                            </div>
+                            <div class="col-md-12 border" data-aos="zoom-in">
+                                <button type="button" class="btn cust-btn" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                    Crime Mapping Filter
+                                </button>
+                                {{ map |safe }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+ 
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="" method="post" class="php-email-form" id="formTwo"> 
+                    <input type="hidden" name="form_type" value="formTwo">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Filters</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+
+                        <h3 class="text-center">Select The Data</h3>
+                        <div class="row gy-4">
+
+                            <div class="col-md-12 text-dark">
+                                <select name="pstation" class="form-control" id="inputGroupSelect04" aria-label="Example select with button addon">
+                                    <option value="">Select Police Station</option>
+                                    {% for ps in pstation %}
+                                    <option value="{{ps}}">{{ps}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-12 text-dark">
+                                <select name="ipc" class="form-control" id="inputGroupSelect05" aria-label="Example select with button addon">
+                                    <option value="">Select IPC</option>
+                                    {% for ipc in ipcs %}
+                                    <option value="{{ipc}}">{{ipc}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- <div class="col-md-12 text-dark">
+                                <select name="Where" class="form-control" id="inputGroupSelect01"
+                                    aria-label="Example select with button addon" required>
+                                    <option value="{{crime.selWhere}}">{% if crime.selWhere %}
+                                        {{crime.selWhere}} {% else %} Choose {% endif %}</option>
+                                    {% for Where in crime.Where %}
+                                    <option value="{{Where}}">{{Where}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div> -->
+            
+                            <!-- <div class="col-md-6 text-dark">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" name="domestic" type="checkbox" id="auto1"
+                                        style="margin-top: 10px;width: 25px;height: 25px;" {% if crime.domestic %}value="true"
+                                        checked="checked" {% endif %}>
+                                    <label class="form-check-label" for="autoSizingCheck" style="margin-top: 10px;">
+                                        &nbsp; Domestic
+                                    </label>
+                                </div>
+                            </div> -->
+
+                            <!-- <div class="col-md-6 text-dark">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" name="arrest" type="checkbox" id="auto2"
+                                        style="margin-top: 10px;width: 25px;height: 25px;" {% if crime.arrest %}value="true"
+                                        checked="checked" {% endif %}>
+                                    <label class="form-check-label" for="autoSizingCheck" style="margin-top: 10px;">
+                                        &nbsp; Arrest
+                                    </label>
+                                </div>
+                            </div> -->
+            
+                            <!-- <div class="col-md-12 text-dark">
+                                <div class="form-group"> <label>Type of Crimes</label>
+                                    <select class="form-control select2 select2-hidden-accessible" name="states" multiple="multiple"
+                                        data-placeholder="Select a State" style="width: 100%;" tabindex="-1" aria-hidden="true" required>
+                                        <option value="{{crime.selType}}">{% if crime.selType %}{{crime.selType}}{% endif %}</option>
+                                        {% for Type in crime.Type %}
+                                        <option value="{{Type}}">{{Type}}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div> -->
+            
+                            <!-- <div class="col-md-12">
+                                <div class="wrapper">
+                                    <div class="values">
+                                        <span id="range1">
+                                            2001
+                                        </span>
+                                        <span> &dash; </span>
+                                        <span id="range2">
+                                            2022
+                                        </span>
+                                    </div>
+                                    <div class="cont">
+                                        <div class="slider-track"></div>
+                                        <input type="range" name="start" min="2001" max="2022"
+                                            value="{% if crime.startDate %}{{crime.startDate}}{% else %}2001{% endif %}"
+                                            id="slider-1" oninput="slideOne()">
+                                        <input type="range" name="end" min="2001" max="2022"
+                                            value="{% if crime.endDate %}{{crime.endDate}}{% else %}2022{% endif %}" id="slider-2"
+                                            oninput="slideTwo()">
+                                    </div>
+                                </div>
+                            </div> -->
+                            <div class="col-md-12 text-center">
+                                <input type="submit" class="btn btn-success fw-bold" value="Show Result">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <div class="col-md-12 p-5">
+        <a href="#" class="d-flex flex-column align-items-center">
+        <div style="background-image: url('{% static "assets/img/police.jpg" %}'); filter: blur(1px); background-size: cover; height: 300px; cursor: pointer; width: 800px;" class="m-auto hvr-grow fs-2 fw-semibold d-flex text-light rounded-5 shadow"></div>
+        <div style="margin-top: 100px; position: absolute;" class="h2 fw-semibold text-light text-center">You Are Not Athorized To Access This Page</div>
+        <p class="text-center mt-4">You have to contact to admin for this Page.</p>
+        </a>
+    </div>
+    {% endif %}
+
+    <div class="col-lg-12 text-center">
+        <!-- Button trigger modal -->
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#police">
+            <i class="fa-solid fa-user-group"></i> Police Patrolling
+        </button>
+    </div>
+    
+    <br>
+
+    <div class="modal" id="police">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h4 class="modal-title">All Police Man</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="" method="POST" id="formThree">
+                    {% csrf_token %}
+                    <input type="hidden" name="form_type" value="formThree">
+                    <!-- Modal body -->
+                    <div class="modal-body">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Police Station</th>
+                                    <th>Rank</th>
+                                    <th>District</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for p in police %}
+                                <tr>
+                                    <td>{{p.PoliceName}}</td>
+                                    <td>{{p.PoliceStation}}</td>
+                                    <td>{{p.Rank}}</td>
+                                    <td>{{p.District_Name}}</td>
+                                    <td><input class="form-check-input" type="checkbox" name="name-{{p.id}}" id="check-{{p.id}}" value="{{p.id}}" aria-label="..."></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="modal-footer">
+                        <button type="button" id="close" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" id="printbtn" class="btn btn-danger">Prepare Duty Chart</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {% if allocation%}
+    <div class='m-2'>
+        <h2>Allocated Police</h2>
+        <table class="table table-bordered border-primary border-2">
+            <thead>
+                <tr>
+                    <th>Beats</th>
+                    <th>Risk Level</th>
+                    <th>Police ID</th>
+                    <th>Police Name</th>
+                    <th>Location</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in allocation %}
+                <tr>
+                    <td>{{p.crime_id}}</td>
+                    <td>{{p.risk_level}}</td>
+                    <td>{{p.police_id}}</td>
+                    <td>{{p.police_officer}}</td>
+                    <td>{{p.location}}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+</main><!-- End #main -->
+
+<script>
+    //Year Range Slider
+        // window.onload = function () {
+        //     slideOne();
+        //     slideTwo();
+        // }; 
+
+        // let sliderOne = document.getElementById("slider-1");
+        // let sliderTwo = document.getElementById("slider-2");
+        // let displayValOne = document.getElementById("range1");
+        // let displayValTwo = document.getElementById("range2");
+        // let minGap = 0;
+        // let sliderTrack = document.querySelector(".slider-track");
+        // let sliderMaxValue = document.getElementById("slider-1").max;
+
+        // function slideOne() {
+        //     if (parseInt(sliderTwo.value) - parseInt(sliderOne.value) <= minGap) {
+        //         sliderOne.value = parseInt(sliderTwo.value) - minGap;
+        //     }
+        //     displayValOne.textContent = sliderOne.value;
+        //     fillColor();
+        // }
+        // function slideTwo() {
+        //     if (parseInt(sliderTwo.value) - parseInt(sliderOne.value) <= minGap) {
+        //         sliderTwo.value = parseInt(sliderOne.value) + minGap;
+        //     }
+        //     displayValTwo.textContent = sliderTwo.value;
+        //     fillColor();
+        // }
+        // function fillColor() {
+        //     percent1 = (sliderOne.value / sliderMaxValue) * 100;
+        //     percent2 = (sliderTwo.value / sliderMaxValue) * 100;
+        //     sliderTrack.style.background = `linear-gradient(to right, #dadae5 ${percent1}% , #3264fe ${percent1}% , #3264fe ${percent2}%, #dadae5 ${percent2}%)`;
+        // }
+
+
+      // //Multi Select
+      $(document).ready(function () {
+         $('.select2').select2({
+             closeOnSelect: false
+         });
+    });
+
+</script>
+<!-- 
+<div class="container-btn">
+    <button id="createDutyChartBtn" class="blue-btn">Create Duty Chart</button>
+    <div id="dutyChartContainer" style="display: none;">
+        <label for="policemanCount">Number of Policemen:</label>
+        <select id="policemanCount" id="select">
+            <option value="">Select</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+        <div id="nameInputsContainer"></div>
+        <button id="createDutyPlanBtn" class="blue-btn cust-btn">Create Duty Plan</button>
+    </div>
+</div>
+
+<script>
+    const createDutyChartBtn = document.getElementById('createDutyChartBtn');
+    const dutyChartContainer = document.getElementById('dutyChartContainer');
+    const policemanCount = document.getElementById('policemanCount');
+    const nameInputsContainer = document.getElementById('nameInputsContainer');
+
+    createDutyChartBtn.addEventListener('click', () => {
+        dutyChartContainer.style.display = 'block';
+    });
+
+    policemanCount.addEventListener('change', () => {
+        const count = parseInt(policemanCount.value);
+        nameInputsContainer.innerHTML = '';
+
+        for (let i = 0; i < count; i++) {
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.placeholder = `Policeman ${i + 1} Name`;
+            nameInputsContainer.appendChild(input);
+        }
+    });
+</script> -->
+
+
+{% endblock %}
+
+{% block jsblock %}
+
+{% endblock %}

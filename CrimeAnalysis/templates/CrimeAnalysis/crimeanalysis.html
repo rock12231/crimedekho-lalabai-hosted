@@ -1,0 +1,61 @@
+{% extends 'CrimeMapping/base.html' %}
+{% load static %}
+{% block title %} Crime Analysis {% endblock %}
+{% block cssblock %}
+{% endblock %}
+{% block content %}
+<main id="main">
+    <!-- ======= Breadcrumbs ======= -->
+    <div class="breadcrumbs">
+        <div class="page-header d-flex align-items-center" style="background-image: url(' {% static "assets/img/crime_analysis.png" %}') ;">
+            <div class="container position-relative">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-lg-6 text-center">
+                        <h2>Crime Analysis</h2>
+                        <!-- <p>Crimedekho helps you understand the extent of rising crimes in your region using crimeanalysis. 
+                            Report crimes and let people be aware of the crime rates as we map the data to geographical aspects
+                            and make it easy for you to understand the dynamics of crime.
+                        </p> -->
+                        <p>Crime analysis utilizes Generative AI and Statistics to analyze crime data, 
+                            providing visual insights for a clearer understanding of criminal activity.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <nav>
+            <div class="container">
+                <ol>
+                    <li><a href="/">Home</a></li>
+                    <li>Crime Analytics</li>
+                </ol>
+            </div>
+        </nav>
+    </div>
+    <!-- =======  Analysis Section ======= -->
+
+    <section style="padding: 5px;" id="get-a-quote" class="get-a-quote mb-5">
+        <div class="container" data-aos="fade-up">
+            <div class="row g-0">
+                <div class="d-flex gy-4 row justify-content-center text-center m-auto col-md-9 ">
+                    <form action="{% url 'crimeanalysis' %}" method="POST" id="queryForm">
+                        <div class="form-group h2 my-5">
+                            {% csrf_token %}
+                            <label for="exampleFormControlTextarea1" class="h5 font-bold">Enter your query, which is not listed above: </label>
+                            <input style="text-align: center;" type="text" placeholder="Please type your query here" class="form-control form-control-lg my-3 py-3 border border-primary border-bottom-0 rounded" name="query" value="{{query}}" required>
+                            <div class="{% if result1 %} h6 {% else %} h4 {% endif %} my-4 py-3 border border-primary border-top-0 rounded">
+                                {% if result1 %} {{result1.answer}} {% else %} Your Answer show here ... {% endif %}
+                            </div>
+                            <div class="text-center my-5">
+                                <input class="btn btn-outline-primary font-weight-bold" type="submit" value="Solve Query">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main><!-- End #main -->
+{% endblock content %}
+{% block jsblock %} {% endblock %}
