@@ -9,10 +9,11 @@ from folium import plugins
 import geopandas as gpd
 import networkx as nx
 import plotly.express as px
-from langchain import OpenAI
+# from langchain import OpenAI
+from langchain_community.llms import OpenAI
 from django.views import View
 from dotenv import load_dotenv
-from langchain.chat_models import ChatOpenAI
+# from langchain.chat_models import ChatOpenAI
 from datetime import datetime
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go

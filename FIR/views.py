@@ -12,11 +12,11 @@ from io import BytesIO
 from base64 import b64encode
 from django.views import View
 import google.generativeai as genai
-from langchain import OpenAI
+# from langchain import OpenAI
 from langchain.chains import RetrievalQA
 from langchain_community.llms import OpenAI
 from langchain_community.vectorstores import Chroma
-from langchain.embeddings import HuggingFaceEmbeddings
+# from langchain.embeddings import HuggingFaceEmbeddings
 from django.shortcuts import render, redirect 
 from django.core.files.storage import FileSystemStorage
 from CrimeMapping.views import getstaticmap
